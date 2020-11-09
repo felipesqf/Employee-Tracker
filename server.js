@@ -3,16 +3,20 @@ var mysql = require("mysql");
 
 const choices = ["Add departments","Add roles", "Add employees", "View departments", "View roles", "View Employees", "Update employee roles" ]
 
+var connection = mysql.createConnection({
+    host: "localhost",
+    port: 3306,
 
+    user: "root",
 
-// Set the port of our application
-// process.env.PORT lets the port be set by Heroku
-var PORT = process.env.PORT || 8000;
+    password: "Fel!pe012021",
+    database: "empmangement_db"
+});
 
-// Parse request body as JSON
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
+connection.connect(function(err) {
+if (err) throw err;
+init();
+});
 
 //propmt user question
 init = () =>{
@@ -24,7 +28,7 @@ init = () =>{
         }
     ])
     .then((choices) => {
-        switch(choices) {
+        switch(choices.choice) {
             case "Add departments":
               // code block
               break;
@@ -38,7 +42,7 @@ init = () =>{
               // code block
               break;
             case "View roles":
-                // code block
+                selectRoles()
              break;
             case "View Employees":
             // code block
@@ -49,3 +53,12 @@ init = () =>{
           }
     })
   }
+
+selectRoles = () => {
+    connection.query("SELECT * FROM emp_role", function(err, res) {
+        if (err) throw err;
+        console.log(res)
+        connection.end();
+        init();
+    });
+}
