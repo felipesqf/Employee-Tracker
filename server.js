@@ -1,6 +1,7 @@
 const inquirer = require("inquirer");
 const cTable = require("console.table");
 var mysql = require("mysql");
+const { Console } = require("console");
 const choices = ["Add departments","Add roles", "Add employees", "View departments", "View roles", "View Employees", "Update employee roles" ]
 let departments;
 let managers;
@@ -15,22 +16,16 @@ var connection = mysql.createConnection({
 
 connection.connect(function(err) {
     if (err) throw err;
-    
     init();
 });
 
-selectDepartments = () =>{
-    connection.query("SELECT * FROM department", function(err, res) {
-        if (err) throw err;
-        departments =  res;
-    })
-}
+
 
 //propmt user question
 init = () =>{
     selectDepartments();
     inquirer.prompt([{
-        type: "rawlist",
+        type: "list",
         name: "choice",
         message: "Choose an option:",
         choices: choices
@@ -40,46 +35,51 @@ init = () =>{
         switch(choices.choice) {
             case "Add departments":
                 insertDepartment();
-              break;
+                break;
             case "Add roles":
-              
                 insertRole();
-              break;
+                break;
             case "Add employees":
-            // code block
+                selectManagers()
+                init();
                 break;
             case "View departments":
-                console.table(departments)
+                console.table(departments);
                 init();
-              break;
+                break;
             case "View roles":
                 selectRoles();
-             break;
+                init();
+                break;
             case "View Employees":
                 selectEmployees();
-            break;
-
-            default:
-              // code block
+                break;
           }
     })
   }
 
 selectRoles = () => {
-    connection.query("SELECT * FROM emp_role RIGHT JOIN department ON emp_role.department_id = department.id", function(err, res) {
+    connection.query("SELECT emp_role.title, emp_role.salary, department.name  FROM emp_role RIGHT JOIN department ON emp_role.department_id = department.id", function(err, res) {
         if (err) throw err;
+        console.log("\n" + "-------------------------------------------" )
         console.table(res)
-        init();
     });
 }
 
-// selectDepartments = () => {
-//     connection.query("SELECT * FROM department", function(err, res) {
-//         if (err) throw err;
-//         console.table(res)
-//         init();
-//     });
-// }
+selectDepartments = () =>{
+    connection.query("SELECT * FROM department", function(err, res) {
+        if (err) throw err;
+        departments =  res;
+    })
+}
+
+selectManagers = () =>{
+    connection.query("SELECT employee.id, employee.first_name, employee.last_name, emp_role.id, emp_role.title FROM employee JOIN emp_role ON employee.role_id = emp_role.id", function(err, res) {
+        if (err) throw err;
+        managers = res.filter(item => item.title == "Manager");
+        console.log(res)
+    })
+}
 
 selectEmployees = () => {
     connection.query("SELECT employee.id, employee.first_name, employee.last_name, emp_role.title, emp_role.salary, department.name FROM employee JOIN emp_role ON employee.role_id = emp_role.id JOIN department ON emp_role.department_id = department.id", function(err, res) {
@@ -125,9 +125,11 @@ insertRole = () =>{
         }
     ])
     .then((newRole) => {
-        connection.query(`INSERT INTO emp_role (title, salary, department_id) VALUES ("${newRole.roleName}", ${newRole.salary}, ${newRole.departmentId})`,function(err, res) {
+        let depId  = departments.filter(item => item.name == newRole.departmentId)
+        connection.query(`INSERT INTO emp_role (title, salary, department_id) VALUES ("${newRole.roleName}", ${newRole.salary}, ${depId[0].id})`,function(err, res) {
             if (err) throw err;
-            console.log(`Department ${newDepartment.department} added successfully`)
+            selectDepartments();
+            console.log(`Role ${newRole.roleName} added successfully`)
             init();
         }); 
     })
