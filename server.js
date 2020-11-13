@@ -7,6 +7,7 @@ const choices = ["Add departments","Add roles", "Add employees", "View departmen
 let managers;
 let departments;
 let roles;
+let employees;
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -25,8 +26,9 @@ init = () =>{
     selectDepartments();
     selectManagers();
     selectRoles();
+    selectEmployees();
     inquirer.prompt([{
-        type: "list",
+        type: "rawlist",
         name: "choice",
         message: "Choose an option:",
         choices: choices
@@ -35,8 +37,7 @@ init = () =>{
     .then((choices) => {
         switch(choices.choice) {
             case "Add departments":
-                init();
-                // insertDepartment();
+                insertDepartment();
                 break;
             case "Add roles":
                 insertRole();
@@ -45,17 +46,22 @@ init = () =>{
                 insertEmployee()
                 break;
             case "View departments":
-                console.log("\n" + "-------------------------------------------" )
+                console.log("\n" + "----------------------------" )
                 console.table(departments);
                 init();
                 break;
             case "View roles":
-                console.log("\n" + "-------------------------------------------" )
+                console.log("\n" + "-------------------------------------------------------" )
                 console.table(roles)
                 init();
                 break;
             case "View Employees":
-                selectEmployees();
+                console.log("\n" + "-------------------------------------------------------" )
+                console.table(employees)
+                init();
+                break;
+            case "Update employee roles":
+                updateEmployeeRole()
                 break;
           }
     })
@@ -65,7 +71,6 @@ selectRoles = () => {
     connection.query("SELECT emp_role.id, emp_role.title, emp_role.salary, department.name FROM emp_role RIGHT JOIN department ON emp_role.department_id = department.id", function(err, res) {
         if (err) throw err;
         roles = res
-        // roles = JSON.parse(JSON.stringify(roles))
     });
 }
 selectDepartments = () =>{
@@ -85,9 +90,7 @@ selectManagers = () =>{
 selectEmployees = () => {
     connection.query("SELECT employee.id, employee.first_name, employee.last_name, emp_role.title, emp_role.salary, department.name FROM employee JOIN emp_role ON employee.role_id = emp_role.id JOIN department ON emp_role.department_id = department.id", function(err, res) {
         if (err) throw err;
-        console.log("\n" + "---------------------------------------------------------------------------" )
-        console.table(res)
-        init();
+        employees = res
     });
 }
 
@@ -101,8 +104,7 @@ insertDepartment = () =>{
     .then((newDepartment) => {
         connection.query(`INSERT INTO department (name) VALUES ("${newDepartment.department}")`,function(err, res) {
             if (err) throw err;
-            console.log(`Department ${newDepartment.department} added successfully`)
-            init();
+            console.log(`*** Department of ${newDepartment.department} added successfully ***`)
         }); 
     })
 }
@@ -130,7 +132,9 @@ insertRole = () =>{
         let depId  = departments.filter(item => item.name == newRole.departmentId)
         connection.query(`INSERT INTO emp_role (title, salary, department_id) VALUES ("${newRole.roleName}", ${newRole.salary}, ${depId[0].id})`,function(err, res) {
             if (err) throw err;
-            console.log(`Role ${newRole.roleName} added successfully`)
+            console.log("\n" + "-------------------------------------------" )
+            console.log(`*** Role ${newRole.roleName} added successfully ***`)
+            console.log("\n" + "-------------------------------------------" )
             init();
         }); 
     })
@@ -167,7 +171,40 @@ insertEmployee = () =>{
         let managerId = managers.filter(item => item.name == newEmployee.managerId )
         connection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${newEmployee.firstName}", "${newEmployee.lastName}", ${roleId[0].id}, ${managerId[0].id})`,function(err, res) {
             if (err) throw err;
-            console.log(`Employee ${newEmployee.firstName} ${newEmployee.lastName} added successfully`)
+            console.log("\n" + "-------------------------------------------" )
+            console.log(`*** Employee ${newEmployee.firstName} ${newEmployee.lastName} added successfully ***`)
+            console.log("\n" + "-------------------------------------------" )
+            init();
+        }); 
+    })
+}
+
+updateEmployeeRole = () =>{
+    employees.forEach(employee => employee.name = employee.first_name + " " + employee.last_name)
+    roles.forEach(element =>  element.name = element.title)
+    console.log(employees)
+    inquirer.prompt([
+        {
+        type: "list",
+        name: "employee",
+        message: "Please eselect the employee",
+        choices: employees
+        },
+        {
+        type: "list",
+        name: "newRole",
+        message: "Please select the new role",
+        choices: roles
+        }
+    ])
+    .then((newRole) => {
+        let roleID  = roles.filter(item => item.name == newRole.newRole)
+        let empID  = employees.filter(item => item.name == newRole.employee)
+        connection.query(`update employee set role_id = ${roleID[0].id} where employee.id = "${empID[0].id}"`,function(err, res) {
+            if (err) throw err;
+            console.log("\n" + "-------------------------------------------" )
+            console.log(`*** Role ${newRole.roleName} added successfully ***`)
+            console.log("\n" + "-------------------------------------------" )
             init();
         }); 
     })
