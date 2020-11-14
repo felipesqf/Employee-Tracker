@@ -109,6 +109,7 @@ insertDepartment = () =>{
         connection.query(`INSERT INTO department (name) VALUES ("${newDepartment.department}")`,function(err, res) {
             if (err) throw err;
             console.log(`*** Department of ${newDepartment.department} added successfully ***`)
+            init();
         }); 
     })
 }
@@ -186,7 +187,6 @@ insertEmployee = () =>{
 updateEmployeeRole = () =>{
     employees.forEach(employee => employee.name = employee.first_name + " " + employee.last_name)
     roles.forEach(element =>  element.name = element.title)
-    console.log(employees)
     inquirer.prompt([
         {
         type: "list",
@@ -207,7 +207,7 @@ updateEmployeeRole = () =>{
         connection.query(`update employee set role_id = ${roleID[0].id} where employee.id = "${empID[0].id}"`,function(err, res) {
             if (err) throw err;
             console.log("\n" + "-------------------------------------------" )
-            console.log(`*** Role ${newRole.roleName} added successfully ***`)
+            console.log(`*** Role ${newRole.newRole} updated successfully ***`)
             console.log("\n" + "-------------------------------------------" )
             init();
         }); 
