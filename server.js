@@ -23,6 +23,10 @@ connection.connect(function(err) {
 })
 //propmt user question
 init = () =>{
+    console.log("\n" + "-------------------------------------------------------" )
+    console.log("*******      WELCOME TO EMPLOYEE TRAKER      *******")
+    console.log("-------------------------------------------------------" )
+
     selectDepartments();
     selectManagers();
     selectRoles();
@@ -68,7 +72,7 @@ init = () =>{
   }
 
 selectRoles = () => {
-    connection.query("SELECT emp_role.id, emp_role.title, emp_role.salary, department.name FROM emp_role RIGHT JOIN department ON emp_role.department_id = department.id", function(err, res) {
+    connection.query("SELECT emp_role.id, emp_role.title, emp_role.salary, department.name FROM emp_role INNER JOIN department ON emp_role.department_id = department.id", function(err, res) {
         if (err) throw err;
         roles = res
     });
