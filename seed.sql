@@ -1,23 +1,8 @@
-
-insert into department (name)
-values ("Information Technology");
-SELECT employee.id,
-    employee.first_name,
-    employee.last_name,
-    emp_role.title,
-    emp_role.salary,
-    department.name
-FROM employee
-    JOIN emp_role ON employee.role_id = emp_role.id
-    JOIN department ON emp_role.department_id = department.id;
-
-
-
-DELETE FROM employee
-WHERE id = 2;
-UPDATE employee
-SET role_id = 2
-WHERE id = 1;
+insert into employee (first_name, last_name, role_id)
+values ("Malcon", "Smith", 2),
+    ("Harvey", "Horta", 9),
+    ("Lean", "Mirkovick", 9),
+    ("Bob", "Smith", 8);
 
 
 insert into employee (first_name, last_name, role_id, manager_id)
@@ -32,7 +17,6 @@ values ("Malcon", "Smith", 2),
     ("Felipe", "Mirkovick", 4, 08),
     ("Daniel", "Horta", 3, 01);
 
-select * from employee where manager_id is null;
 
 insert into emp_role (title, salary, department_id)
 values ("Engineer", 120000, 7),
@@ -47,12 +31,6 @@ values ("Engineer", 120000, 7),
     ("Content Creator", 60000, 4),
     ("QA Engineer", 90000, 7);
 
-'2','Finance'
-'3','Sales'
-'4','Marketing'
-'5','Finance'
-'6','Sales'
-'7','Information Technology'
 
 insert into department (name)
 values 
