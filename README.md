@@ -40,7 +40,7 @@ So that I can organize and plan my business
 
 #### Final Product
 
-![screenshot1](https://github.com/felipesqf/Employee-Tracker/blob/master/public/assets/emptracker.PNG)
+![screenshot1](https://github.com/felipesqf/Employee-Tracker/blob/master/Assets/emptracker.png)
 
 
 ### Licence
