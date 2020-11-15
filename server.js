@@ -9,6 +9,7 @@ let departments;
 let roles;
 let employees;
 
+//connect to the database
 var connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
@@ -17,6 +18,7 @@ var connection = mysql.createConnection({
     database: "empmangement_db"
 });
 
+//init connection
 connection.connect(function(err) {
     if (err) throw err;
     init();
@@ -26,7 +28,7 @@ init = () =>{
     console.log("\n" + "-------------------------------------------------------" )
     console.log("*******      WELCOME TO EMPLOYEE TRAKER      *******")
     console.log("-------------------------------------------------------" )
-
+    //select the entries on db
     selectDepartments();
     selectManagers();
     selectRoles();
@@ -71,19 +73,21 @@ init = () =>{
     })
   }
 
+  //select roles and join the departments
 selectRoles = () => {
     connection.query("SELECT emp_role.id, emp_role.title, emp_role.salary, department.name FROM emp_role INNER JOIN department ON emp_role.department_id = department.id", function(err, res) {
         if (err) throw err;
         roles = res
     });
 }
+//select departments
 selectDepartments = () =>{
     connection.query("SELECT * FROM department", function(err, res) {
         if (err) throw err;
         departments = res
     })
 }
-
+//select managers
 selectManagers = () =>{
     connection.query("select employee.id, employee.first_name, employee.last_name from employee where manager_id is null", function(err, res) {
         if (err) throw err;
@@ -98,6 +102,7 @@ selectEmployees = () => {
     });
 }
 
+//insert departments
 insertDepartment = () =>{
     inquirer.prompt([{
         type: "input",
@@ -114,6 +119,7 @@ insertDepartment = () =>{
     })
 }
 
+//insert role and select which department it belongs
 insertRole = () =>{
     inquirer.prompt([
         {
@@ -134,6 +140,7 @@ insertRole = () =>{
         }
     ])
     .then((newRole) => {
+        //filter the department from  the array
         let depId  = departments.filter(item => item.name == newRole.departmentId)
         connection.query(`INSERT INTO emp_role (title, salary, department_id) VALUES ("${newRole.roleName}", ${newRole.salary}, ${depId[0].id})`,function(err, res) {
             if (err) throw err;
@@ -144,6 +151,8 @@ insertRole = () =>{
         }); 
     })
 }
+
+//insert employee and select the manager and role
 insertEmployee = () =>{
     managers.forEach(manager => manager.name = manager.first_name + " " + manager.last_name)
     roles.forEach(element =>  element.name = element.title)
@@ -172,6 +181,7 @@ insertEmployee = () =>{
         }
     ]) 
     .then((newEmployee) => {
+        //filter manager and role from the array
         let roleId  = roles.filter(item => item.title == newEmployee.roleId)
         let managerId = managers.filter(item => item.name == newEmployee.managerId )
         connection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${newEmployee.firstName}", "${newEmployee.lastName}", ${roleId[0].id}, ${managerId[0].id})`,function(err, res) {
@@ -183,7 +193,7 @@ insertEmployee = () =>{
         }); 
     })
 }
-
+//update employee by selectiing the employee and selecting the new role
 updateEmployeeRole = () =>{
     employees.forEach(employee => employee.name = employee.first_name + " " + employee.last_name)
     roles.forEach(element =>  element.name = element.title)
@@ -202,6 +212,7 @@ updateEmployeeRole = () =>{
         }
     ])
     .then((newRole) => {
+        //filtering the employee and new role to pass to the db update command
         let roleID  = roles.filter(item => item.name == newRole.newRole)
         let empID  = employees.filter(item => item.name == newRole.employee)
         connection.query(`update employee set role_id = ${roleID[0].id} where employee.id = "${empID[0].id}"`,function(err, res) {
