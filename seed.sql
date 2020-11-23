@@ -1,42 +1,35 @@
-insert into employee (first_name, last_name, role_id)
-values ("Malcon", "Smith", 2),
-    ("Harvey", "Horta", 9),
-    ("Lean", "Mirkovick", 9),
-    ("Bob", "Smith", 8);
-
-
-insert into employee (first_name, last_name, role_id, manager_id)
-values ("Malcon", "Smith", 2),
-    ("Alex", "Mirkovick", 1, 01),
-    ("Harvey", "Horta", 9),
-    ("Aline", "Ferreira", 4, 01),
-    ("John", "Smith",11, 01),
-    ("Lean", "Mirkovick", 9),
-    ("Mary", "Horta", 10, 06),
-    ("Bob", "Smith", 8),
-    ("Felipe", "Mirkovick", 4, 08),
-    ("Daniel", "Horta", 3, 01);
-
-
-insert into emp_role (title, salary, department_id)
-values ("Engineer", 120000, 7),
-    ("Manager", 150000, 7),
-    ("Intern", 60000, 7),
-    ("Developer", 80000,7),
-    ("Finance Manager", 120000, 2),
-    ("Accountant", 60000, 2),
-    ("Sales Manager", 120000,6),
-    ("Sales Assistant", 60000, 6),
-    ("Marketing Manager", 120000, 4),
-    ("Content Creator", 60000, 4),
-    ("QA Engineer", 90000, 7);
-
 
 insert into department (name)
 values 
 ("Finance"),
 ("Sales"),
 ("Marketing"),
-("Finance"),
-("Sales"),
 ("Information Technology");
+
+insert into emp_role (title, salary, department_id)
+values ("Engineer", 120000, (SELECT id from department WHERE name = "Information Technology")),
+    ("Manager", 150000, (SELECT id from department WHERE name = "Information Technology")),
+    ("Intern", 60000, (SELECT id from department WHERE name = "Information Technology")),
+    ("Developer", 80000,(SELECT id from department WHERE name = "Information Technology")),
+    ("Finance Manager", 120000, (SELECT id from department WHERE name = "Finance")),
+    ("Accountant", 60000, (SELECT id from department WHERE name = "Finance")),
+    ("Sales Manager", 120000, (SELECT id from department WHERE name = "Sales")),
+    ("Sales Assistant", 60000, (SELECT id from department WHERE name = "Sales")),
+    ("Marketing Manager", 120000, (SELECT id from department WHERE name = "Marketing")),
+    ("Content Creator", 60000, (SELECT id from department WHERE name = "Marketing")),
+    ("QA Engineer", 90000, (SELECT id from department WHERE name = "Information Technology"));
+
+insert into employee (first_name, last_name, role_id)
+values ("Malcon", "Smith", (SELECT id from emp_role WHERE title = "Manager")),
+    ("Harvey", "Horta", (SELECT id from emp_role WHERE title = "Finance Manager")),
+    ("Lean", "Mirkovick", (SELECT id from emp_role WHERE title = "Sales Manager")),
+    ("Bob", "Smith", (SELECT id from emp_role WHERE title = "Marketing Manager"));
+    
+insert into employee (first_name, last_name, role_id, manager_id)
+values 
+    ("Alex", "Mirkovick", (SELECT id from emp_role WHERE title = "Engineer"), 01),
+    ("Aline", "Ferreira", (SELECT id from emp_role WHERE title = "Intern"), 01),
+    ("John", "Smith", (SELECT id from emp_role WHERE title = "Developer"), 01),
+    ("Mary", "Horta", (SELECT id from emp_role WHERE title = "Accountant"), 02),
+    ("Felipe", "Mirkovick", (SELECT id from emp_role WHERE title = "Content Creator"), 04),
+    ("Daniel", "Horta", (SELECT id from emp_role WHERE title = "Sales Assistant"), 03);
